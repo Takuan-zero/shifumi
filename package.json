@@ -6,7 +6,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "eject": "expo eject",
-    "test": "node ./node_modules/jest/bin/jest.js --watchAll"
+    "test": "node ./node_modules/jest/bin/jest.js --watchAll",
+    "test-ci": "node ./node_modules/jest/bin/jest.js"
   },
   "dependencies": {
     "@expo/samples": "2.1.1",
