@@ -1,10 +1,10 @@
 language: node_js
 
+node_js:
+  - "lts/*"
+
 install:
   - npm install
-
-env:
-  - TEST_DIR=./
 
 script:
   - npm run test
