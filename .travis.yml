@@ -1,10 +1,17 @@
+sudo: true
 language: node_js
-
 node_js:
   - "lts/*"
-
+branches:
+  only:
+    - master
+cache:
+  directories:
+    - node_modules
+before_install:
+  - echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+  - npm update
 install:
   - npm install
-
 script:
   - npm run test
