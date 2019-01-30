@@ -1,9 +1,9 @@
 import React from 'react';
 
-import Main from './screens/HomeScreen';
+import SignInSignUp from './screens/SignInSignUp';
 
 function App() {
-  return <Main />;
+  return <SignInSignUp />;
 }
 
 export default App;
