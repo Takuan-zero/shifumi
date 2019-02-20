@@ -7,8 +7,8 @@ import styled from 'styled-components/native';
 import fontRoboto from 'native-base/Fonts/Roboto.ttf';
 import fontRobotoMedium from 'native-base/Fonts/Roboto_medium.ttf';
 
-import Logo from '../../assets/images/triangle.png';
-import BackImage from '../../assets/images/11927.jpg';
+import Logo from '../assets/images/triangle.png';
+import BackImage from '../assets/images/11927.jpg';
 
 const Background = styled(ImageBackground)`
   width: 100%;

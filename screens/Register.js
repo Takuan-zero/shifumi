@@ -7,7 +7,7 @@ import { Actions } from 'react-native-router-flux';
 import fontRoboto from 'native-base/Fonts/Roboto.ttf';
 import fontRobotoMedium from 'native-base/Fonts/Roboto_medium.ttf';
 
-import BackImage from '../../assets/images/11927.jpg';
+import BackImage from '../assets/images/11927.jpg';
 
 const Background = styled(ImageBackground)`
   width: 100%;
