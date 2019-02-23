@@ -79,16 +79,12 @@ const TextButton = styled.Text`
 
 class Register extends Component {
   state = {
-    user: {
-      username: '',
-      email: '',
-      password: '',
-    },
+    username: '',
+    email: '',
+    password: '',
   };
 
   onClickListener = () => {
-    const { user } = this.state;
-
     // TODO: Add front user data validation
 
     fetch('http://46.101.250.58:3000/auth/register', {
@@ -97,7 +93,7 @@ class Register extends Component {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(user),
+      body: JSON.stringify(this.state),
     })
       .then(response => {
         if (!response.ok) {
@@ -136,7 +132,7 @@ class Register extends Component {
                 placeholder="Username"
                 keyboardType="default"
                 underlineColorAndroid="transparent"
-                onChangeText={username => this.setState({ user: { username } })}
+                onChangeText={username => this.setState({ username })}
               />
             </InputContainer>
             <InputContainer>
@@ -149,7 +145,7 @@ class Register extends Component {
                 placeholder="Email"
                 keyboardType="email-address"
                 underlineColorAndroid="transparent"
-                onChangeText={email => this.setState({ user: { email } })}
+                onChangeText={email => this.setState({ email })}
               />
             </InputContainer>
             <InputContainer>
@@ -162,7 +158,7 @@ class Register extends Component {
                 placeholder="Password"
                 secureTextEntry
                 underlineColorAndroid="transparent"
-                onChangeText={password => this.setState({ user: { password } })}
+                onChangeText={password => this.setState({ password })}
               />
             </InputContainer>
             <BottomContainer>
