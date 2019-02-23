@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
 import { TextInput, TouchableHighlight, Image, Alert, ImageBackground } from 'react-native';
-import { AppLoading, Font } from 'expo';
 import styled from 'styled-components/native';
 import { Actions } from 'react-native-router-flux';
-
-import fontRoboto from 'native-base/Fonts/Roboto.ttf';
-import fontRobotoMedium from 'native-base/Fonts/Roboto_medium.ttf';
 
 import BackImage from '../assets/images/11927.jpg';
 
@@ -81,42 +77,39 @@ const TextButton = styled.Text`
   color: #ffffff;
 `;
 
-export default class Login extends Component {
-  constructor() {
-    super();
-    this.state = {
-      isReady: false,
-      username: '',
-      password: '',
-    };
-  }
-
-  componentWillMount() {
-    this.loadFonts();
-  }
-
-  onClickListener = viewId => {
-    const { password, username } = this.state;
-    Actions.push('Home');
-    Alert.alert(
-      'You are connected',
-      `Button pressed ${viewId} password: ${password} username: ${username}`
-    );
+class Login extends Component {
+  state = {
+    username: '',
+    password: '',
   };
 
-  async loadFonts() {
-    await Font.loadAsync({
-      Roboto: fontRoboto,
-      Roboto_medium: fontRobotoMedium,
-    });
-    this.setState({ isReady: true });
-  }
+  onClickListener = () => {
+    // TODO: Add front user data validation
+    fetch('http://46.101.250.58:3000/auth/login', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(this.state),
+    })
+      .then(response => {
+        if (!response.ok) {
+          /* eslint-disable-next-line no-underscore-dangle */
+          throw new Error(response._bodyText);
+        }
+        return response.json();
+      })
+      .then(responseJson => {
+        Actions.pop();
+        Alert.alert(`Welcome`, JSON.stringify(responseJson));
+      })
+      .catch(error => {
+        Alert.alert(`POST User login request fail`, `Reason: ${error}`);
+      });
+  };
 
   render() {
-    const { isReady } = this.state;
-    if (!isReady) {
-      return <AppLoading />;
-    }
     return (
       <Wrapper>
         <Background source={BackImage}>
@@ -151,7 +144,7 @@ export default class Login extends Component {
               />
             </InputContainer>
             <BottomContainer>
-              <ButtonRegister onPress={() => this.onClickListener('Login')}>
+              <ButtonRegister onPress={() => this.onClickListener()}>
                 <TextButton>Connection</TextButton>
               </ButtonRegister>
             </BottomContainer>
@@ -161,3 +154,5 @@ export default class Login extends Component {
     );
   }
 }
+
+export default Login;
