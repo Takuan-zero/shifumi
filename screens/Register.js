@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
 import { TextInput, TouchableHighlight, Image, Alert, ImageBackground } from 'react-native';
-import { AppLoading, Font } from 'expo';
 import styled from 'styled-components/native';
 import { Actions } from 'react-native-router-flux';
-
-import fontRoboto from 'native-base/Fonts/Roboto.ttf';
-import fontRobotoMedium from 'native-base/Fonts/Roboto_medium.ttf';
 
 import BackImage from '../assets/images/11927.jpg';
 
@@ -81,43 +77,48 @@ const TextButton = styled.Text`
   color: #ffffff;
 `;
 
-export default class Register extends Component {
-  constructor() {
-    super();
-    this.state = {
-      isReady: false,
+class Register extends Component {
+  state = {
+    user: {
       username: '',
       email: '',
       password: '',
-    };
-  }
-
-  componentWillMount() {
-    this.loadFonts();
-  }
-
-  onClickListener = viewId => {
-    const { email, password, username } = this.state;
-    Actions.push('Home');
-    Alert.alert(
-      'You are register. Please login with your credentials',
-      `Button pressed ${viewId} email: ${email} password: ${password} username: ${username}`
-    );
+    },
   };
 
-  async loadFonts() {
-    await Font.loadAsync({
-      Roboto: fontRoboto,
-      Roboto_medium: fontRobotoMedium,
-    });
-    this.setState({ isReady: true });
-  }
+  onClickListener = () => {
+    const { user } = this.state;
+
+    // TODO: Add front user data validation
+
+    fetch('http://46.101.250.58:3000/auth/register', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(user),
+    })
+      .then(response => {
+        if (!response.ok) {
+          /* eslint-disable-next-line no-underscore-dangle */
+          throw new Error(response._bodyText);
+        }
+        return response.json();
+      })
+      .then(responseJson => {
+        Actions.pop();
+        Alert.alert(
+          'You are register. Please login with your credentials',
+          JSON.stringify(responseJson)
+        );
+      })
+      .catch(error => {
+        Alert.alert(`POST User request fail`, `Reason: ${error}`);
+      });
+  };
 
   render() {
-    const { isReady } = this.state;
-    if (!isReady) {
-      return <AppLoading />;
-    }
     return (
       <Wrapper>
         <Background source={BackImage}>
@@ -135,7 +136,7 @@ export default class Register extends Component {
                 placeholder="Username"
                 keyboardType="default"
                 underlineColorAndroid="transparent"
-                onChangeText={username => this.setState({ username })}
+                onChangeText={username => this.setState({ user: { username } })}
               />
             </InputContainer>
             <InputContainer>
@@ -148,7 +149,7 @@ export default class Register extends Component {
                 placeholder="Email"
                 keyboardType="email-address"
                 underlineColorAndroid="transparent"
-                onChangeText={email => this.setState({ email })}
+                onChangeText={email => this.setState({ user: { email } })}
               />
             </InputContainer>
             <InputContainer>
@@ -161,7 +162,7 @@ export default class Register extends Component {
                 placeholder="Password"
                 secureTextEntry
                 underlineColorAndroid="transparent"
-                onChangeText={password => this.setState({ password })}
+                onChangeText={password => this.setState({ user: { password } })}
               />
             </InputContainer>
             <BottomContainer>
@@ -175,3 +176,5 @@ export default class Register extends Component {
     );
   }
 }
+
+export default Register;
