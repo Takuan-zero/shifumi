@@ -3,7 +3,7 @@ import LOGIN from './types';
 const login = data => {
   return {
     type: LOGIN,
-    jwt: data,
+    user: data,
   };
 };
 

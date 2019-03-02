@@ -1,14 +1,13 @@
 import LOGIN from '../actions/types';
 
 const initialState = {
-  jwt: '',
+  user: {},
 };
 
 const loginReducer = (state = initialState, action) => {
-  console.log('Action :', action);
   switch (action.type) {
     case LOGIN:
-      return action.jwt;
+      return action.user;
     default:
       return state;
   }
