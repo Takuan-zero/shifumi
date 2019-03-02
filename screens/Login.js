@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { TextInput, TouchableHighlight, Image, Alert, ImageBackground } from 'react-native';
 import styled from 'styled-components/native';
+import PropTypes from 'prop-types';
 import { Actions } from 'react-native-router-flux';
+
+import login from '../actions/login';
 
 import BackImage from '../assets/images/11927.jpg';
 
@@ -81,9 +85,12 @@ class Login extends Component {
   state = {
     username: '',
     password: '',
+    jwt: null,
   };
 
   onClickListener = () => {
+    const { loginDispatch } = this.props;
+    const { username, password } = this.state;
     // TODO: Add front user data validation
     fetch('http://46.101.250.58:3000/auth/login', {
       method: 'POST',
@@ -91,16 +98,20 @@ class Login extends Component {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(this.state),
+      body: JSON.stringify({ username, password }),
     })
       .then(response => {
         if (!response.ok) {
           /* eslint-disable-next-line no-underscore-dangle */
           throw new Error(response._bodyText);
         }
+        this.setState({
+          jwt: response.headers.map.authorization,
+        });
         return response.json();
       })
       .then(responseJson => {
+        loginDispatch(this.state);
         Actions.pop();
         Alert.alert(`Welcome`, JSON.stringify(responseJson));
       })
@@ -155,4 +166,25 @@ class Login extends Component {
   }
 }
 
-export default Login;
+Login.propTypes = {
+  loginDispatch: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = state => {
+  return {
+    user: state.user,
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    loginDispatch: user => {
+      dispatch(login(user));
+    },
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Login);
