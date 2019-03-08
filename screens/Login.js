@@ -28,7 +28,7 @@ const TopContainer = styled.View`
 
 const TopContainerTitle = styled.Text`
   color: #fcf011;
-  font-size: 100;
+  font-size: 60;
 `;
 
 const MiddleContainer = styled.View`
@@ -112,7 +112,9 @@ class Login extends Component {
       })
       .then(responseJson => {
         loginDispatch(this.state);
-        Actions.pop();
+        // Actions.pop();
+        // Actions.push('Lobby');
+        Actions.Lobby({ token: this.state.jwt });
         Alert.alert(`Welcome`, JSON.stringify(responseJson));
       })
       .catch(error => {
