@@ -83,6 +83,7 @@ const TextButton = styled.Text`
 
 class Login extends Component {
   state = {
+    id: '',
     username: '',
     password: '',
     jwt: null,
@@ -91,7 +92,7 @@ class Login extends Component {
   onClickListener = () => {
     const { loginDispatch } = this.props;
     const { username, password } = this.state;
-    // TODO: Add front user data validation
+    // TODO: Add front user data validation and Fetch refacto
     fetch('http://46.101.250.58:3000/auth/login', {
       method: 'POST',
       headers: {
@@ -111,9 +112,13 @@ class Login extends Component {
         return response.json();
       })
       .then(responseJson => {
+        this.setState({
+          id: responseJson.user.id,
+          email: responseJson.user.email,
+        });
         loginDispatch(this.state);
         Actions.pop();
-        Actions.replace('Lobby', this.state);
+        Actions.replace('HomeLogged', this.state);
         Alert.alert(`Welcome`, JSON.stringify(responseJson));
       })
       .catch(error => {
