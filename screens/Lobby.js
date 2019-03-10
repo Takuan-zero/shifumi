@@ -159,7 +159,7 @@ class Lobby extends React.Component {
     socket.emit(
       'joinRoom',
       {
-        roomId,
+        id: roomId,
       },
       result => {
         if (result.success) {
