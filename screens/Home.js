@@ -1,11 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { connect } from 'react-redux';
 import { TouchableHighlight, Image, ImageBackground } from 'react-native';
 import { Actions } from 'react-native-router-flux';
-import { AppLoading, Font } from 'expo';
 import styled from 'styled-components/native';
-
-import fontRoboto from 'native-base/Fonts/Roboto.ttf';
-import fontRobotoMedium from 'native-base/Fonts/Roboto_medium.ttf';
 
 import Logo from '../assets/images/triangle.png';
 import BackImage from '../assets/images/11927.jpg';
@@ -69,51 +66,28 @@ const BottomText = styled.Text`
   font-size: 18;
 `;
 
-export default class Home extends Component {
-  constructor() {
-    super();
-    this.state = {
-      isReady: false,
-    };
-  }
+const Home = () => {
+  return (
+    <Wrapper>
+      <Background source={BackImage}>
+        <TopContainer>
+          <TopContainerTitle>Shifumi</TopContainerTitle>
+          <TopImage source={Logo} />
+        </TopContainer>
+        <MiddleContainer>
+          <ButtonRegister onPress={() => Actions.push('Login')}>
+            <TextButton>Login</TextButton>
+          </ButtonRegister>
+          <ButtonRegister onPress={() => Actions.push('Register')}>
+            <TextButton>Register</TextButton>
+          </ButtonRegister>
+        </MiddleContainer>
+        <BottomContainer>
+          <BottomText>Best game ever made</BottomText>
+        </BottomContainer>
+      </Background>
+    </Wrapper>
+  );
+};
 
-  componentWillMount() {
-    this.loadFonts();
-  }
-
-  async loadFonts() {
-    await Font.loadAsync({
-      Roboto: fontRoboto,
-      Roboto_medium: fontRobotoMedium,
-    });
-    this.setState({ isReady: true });
-  }
-
-  render() {
-    const { isReady } = this.state;
-    if (!isReady) {
-      return <AppLoading />;
-    }
-    return (
-      <Wrapper>
-        <Background source={BackImage}>
-          <TopContainer>
-            <TopContainerTitle>Shifumi</TopContainerTitle>
-            <TopImage source={Logo} />
-          </TopContainer>
-          <MiddleContainer>
-            <ButtonRegister onPress={() => Actions.push('Login')}>
-              <TextButton>Login</TextButton>
-            </ButtonRegister>
-            <ButtonRegister onPress={() => Actions.push('Register')}>
-              <TextButton>Register</TextButton>
-            </ButtonRegister>
-          </MiddleContainer>
-          <BottomContainer>
-            <BottomText>Best game ever made</BottomText>
-          </BottomContainer>
-        </Background>
-      </Wrapper>
-    );
-  }
-}
+export default connect()(Home);

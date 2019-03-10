@@ -8,6 +8,7 @@ import configureStore from './store';
 import Home from './screens/Home';
 import Register from './screens/Register';
 import Login from './screens/Login';
+import HomeLogged from './screens/HomeLogged';
 
 const MainStack = styled(Stack)``;
 
@@ -26,6 +27,7 @@ export default class App extends Component {
             <Scene key="Home" component={Home} title="Home" />
             <Scene key="Register" component={Register} title="Register" />
             <Scene key="Login" component={Login} title="Login" />
+            <Scene key="HomeLogged" component={HomeLogged} title="Shifumi" />
           </MainStack>
         </Router>
       </Provider>
