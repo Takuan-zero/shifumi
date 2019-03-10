@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { TextInput, TouchableHighlight, Image, ImageBackground, Alert, View } from 'react-native';
+import { TouchableHighlight, Image, ImageBackground, Alert, View } from 'react-native';
 import { ImagePicker, Camera, Permissions } from 'expo';
 import PropTypes from 'prop-types';
 import styled from 'styled-components/native';
@@ -48,7 +48,7 @@ const Picture = styled(Image)`
 `;
 
 const ButtonLobby = styled(TouchableHighlight)`
-  height: 85;
+  height: 45;
   flex-direction: row;
   justify-content: center;
   align-items: center;
@@ -58,39 +58,12 @@ const ButtonLobby = styled(TouchableHighlight)`
   background-color: #48bf00;
 `;
 const TextButtonLobby = styled.Text`
-  font-size: 30px;
   color: #ffffff;
 `;
 
 const MiddleContainer = styled.View`
   align-items: center;
   margin-top: 10;
-`;
-
-const InputContainer = styled.View`
-  border-bottom-color: #f5fcff;
-  background-color: #ffffff;
-  border-radius: 30;
-  border-bottom-width: 1;
-  width: 250;
-  height: 45;
-  margin-bottom: 20;
-  flex-direction: row;
-  align-items: center;
-`;
-
-const InputIcon = styled(Image)`
-  width: 30;
-  height: 30;
-  margin-left: 15;
-  justify-content: center;
-`;
-
-const InputText = styled(TextInput)`
-  height: 45;
-  margin-left: 16;
-  border-bottom-color: #ffffff;
-  flex: 1;
 `;
 
 const BottomContainer = styled.View`
@@ -203,7 +176,7 @@ class HomeLogged extends Component {
       <Wrapper>
         <Background source={BackImage}>
           <TopContainer>
-            <TopContainerTitle>Profile</TopContainerTitle>
+            <TopContainerTitle>{username}</TopContainerTitle>
           </TopContainer>
           <MiddleContainer>
             <PictureContainer>
@@ -239,19 +212,6 @@ class HomeLogged extends Component {
                 </View>
               </CameraContainer>
             )}
-            <InputContainer>
-              <InputIcon
-                source={{
-                  uri: 'https://img.icons8.com/ultraviolet/40/000000/human-head.png',
-                }}
-              />
-              <InputText
-                placeholder={username}
-                keyboardType="default"
-                underlineColorAndroid="transparent"
-                editable={false}
-              />
-            </InputContainer>
             <ButtonLogout onPress={() => this.onClickListener('logout')}>
               <TextButtonLogout>Logout</TextButtonLogout>
             </ButtonLogout>
