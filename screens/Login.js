@@ -91,7 +91,7 @@ class Login extends Component {
   onClickListener = () => {
     const { loginDispatch } = this.props;
     const { username, password } = this.state;
-    // TODO: Add front user data validation
+    // TODO: Add front user data validation and Fetch refacto
     fetch('http://46.101.250.58:3000/auth/login', {
       method: 'POST',
       headers: {
@@ -111,9 +111,31 @@ class Login extends Component {
         return response.json();
       })
       .then(responseJson => {
-        loginDispatch(this.state);
-        Actions.pop();
-        Alert.alert(`Welcome`, JSON.stringify(responseJson));
+        fetch('http://46.101.250.58:3000/users/me', {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            /* eslint-disable-next-line react/destructuring-assignment */
+            Authorization: this.state.jwt,
+          },
+        })
+          .then(response => {
+            if (!response.ok) {
+              /* eslint-disable-next-line no-underscore-dangle */
+              throw new Error(response._bodyText);
+            }
+            return response.json();
+          })
+          .then(responseJson2 => {
+            loginDispatch(this.state);
+            Actions.pop();
+            Actions.replace('HomeLogged', this.state);
+            Alert.alert(`Welcome`, JSON.stringify(responseJson, responseJson2));
+          })
+          .catch(error => {
+            Alert.alert(`Get User me request fail`, `Reason: ${error}`);
+          });
       })
       .catch(error => {
         Alert.alert(`POST User login request fail`, `Reason: ${error}`);
