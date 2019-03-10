@@ -1,5 +1,3 @@
-import { Actions } from 'react-native-router-flux';
-
 import React from 'react';
 import {
   ScrollView,
@@ -10,21 +8,15 @@ import {
   Dimensions,
   RefreshControl,
 } from 'react-native';
-import io from 'socket.io-client/dist/socket.io.js';
+import io from 'socket.io-client/dist/socket.io';
+import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
 import { material } from 'react-native-typography';
 import { Button } from 'react-native-elements';
 import { Circle } from 'react-native-progress';
 import Icon from 'react-native-vector-icons/Ionicons';
-import propTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import Dialog from 'react-native-dialog';
-// import { NavigationEvents } from 'react-navigation';
-/* import {
-  getRoomFetch
-} from '../api/request'; */
-/* import {
-  joinRoomDispatch
-} from '../redux/actions/actions'; */
 
 const styles = StyleSheet.create({
   container: {
@@ -43,15 +35,16 @@ class Lobby extends React.Component {
 
   constructor(props) {
     super(props);
-    const { token } = this.props;
-    console.log(token);
-    const tokenCode = token.split(' ')[1];
-    const socketTmp = io('http://46.101.250.58:4242');
+    const { jwt } = this.props;
+    const tokenCode = jwt.split(' ')[1];
+    const socketTmp = io('http://46.101.250.58:4242', {
+      query: {
+        token: tokenCode,
+      },
+    });
     socketTmp.on('error', () => {});
     socketTmp.on('connect_failed', () => {});
-    socketTmp.on('ready', () => {
-      console.log('Ready');
-    });
+    socketTmp.on('ready', () => {});
     this.state = {
       socket: socketTmp,
       datas: undefined,
@@ -62,18 +55,20 @@ class Lobby extends React.Component {
   }
 
   componentDidMount() {
-    const { token } = this.props;
+    const { jwt } = this.props;
     BackHandler.addEventListener('hardwareBackPress', () => {
+      const { socket } = this.state;
+      if (socket) {
+        socket.disconnect();
+      }
       BackHandler.exitApp();
       return true;
     });
-    console.log('lobby token', token);
-    // this.redirectLoginScreen(this.props);
-    if (token !== '') {
+    if (jwt !== '') {
       fetch('http://46.101.250.58:3000/rooms', {
         method: 'GET',
         headers: {
-          Authorization: token,
+          Authorization: jwt,
         },
       })
         .then(response => {
@@ -93,30 +88,12 @@ class Lobby extends React.Component {
 
   componentDidUpdate() {
     const { gotFocus } = this.state;
-    // this.redirectLoginScreen(this.props);
     if (gotFocus) {
       this.handleRefresh();
     }
   }
 
-  redirectLoginScreen = props => {
-    const { navigation, logout } = props;
-    const { navigate } = navigation;
-    const { token, isConnect } = props;
-    const { socket } = this.state;
-    if (token === '' || token === undefined) {
-      // navigate('Login');
-    }
-    if (isConnect === false) {
-      if (token !== '' && token !== undefined) logout(token);
-      socket.disconnect();
-      // navigate('Login');
-    }
-  };
-
   addRoom = () => {
-    const { joinRoom, navigation } = this.props;
-    const { navigate } = navigation;
     const { socket, nameRoom } = this.state;
     this.setState({
       nameRoomError: false,
@@ -128,17 +105,11 @@ class Lobby extends React.Component {
           name: nameRoom,
         },
         data => {
-          const { id } = data.room;
           if (data.success) {
-            joinRoom(id);
             this.setState({
               displayDialog: false,
-              nameRoom: '',
             });
-            this.componentDidMount();
-            navigate('Game', {
-              socket,
-            });
+            Actions.push('Game', { socket });
           }
         }
       );
@@ -149,7 +120,7 @@ class Lobby extends React.Component {
   };
 
   handleRefresh = () => {
-    const { token } = this.props;
+    const { jwt } = this.props;
     const { gotFocus } = this.state;
     this.setState({
       refreshing: true,
@@ -158,11 +129,11 @@ class Lobby extends React.Component {
       this.setState({
         gotFocus: false,
       });
-    if (token !== '') {
+    if (jwt !== '') {
       fetch('http://46.101.250.58:3000/rooms', {
         method: 'GET',
         headers: {
-          Authorization: token,
+          Authorization: jwt,
         },
       })
         .then(response => {
@@ -182,10 +153,7 @@ class Lobby extends React.Component {
   };
 
   handleJoinRoom = id => {
-    const { joinRoom } = this.props;
     const { socket } = this.state;
-    const { navigation } = this.props;
-    const { navigate } = navigation;
     socket.emit(
       'joinRoom',
       {
@@ -193,43 +161,10 @@ class Lobby extends React.Component {
       },
       result => {
         if (result.success) {
-          // joinRoom(id);
-          // navigate('Game', { socket });
-        } else console.log('Full!');
+          Actions.push('Game', { socket });
+        }
       }
     );
-  };
-
-  createSocket = () => {
-    const { socket } = this.state;
-    const { token } = this.props;
-    this.setState({
-      gotFocus: true,
-    });
-    if (socket === undefined) {
-      const tokenCode = token.split(' ')[1];
-      const socketTmp = io.connect('http://46.101.250.58:4242', {
-        query: {
-          token: tokenCode,
-        },
-      });
-      socketTmp.on('error', () => {});
-      socketTmp.on('connect_failed', () => {});
-      socketTmp.on('ready', () => {
-        console.log('Ready');
-      });
-      this.setState({
-        socket: socketTmp,
-      });
-    }
-  };
-
-  closeSocket = () => {
-    const { socket } = this.state;
-    socket.disconnect();
-    this.setState({
-      socket: undefined,
-    });
   };
 
   render() {
@@ -274,15 +209,7 @@ class Lobby extends React.Component {
     }
     return (
       <View style={styles.container}>
-        <NavigationEvents
-          onWillFocus={this.createSocket}
-          onWillBlur={payload => {
-            if (payload.action.routeName !== 'Game') {
-              this.closeSocket();
-            }
-          }}
-        />
-        <Text style={Object.assign({}, material.display1, { alignSelf: 'center', marginTop: 20 })}>
+        <Text style={Object.assign({}, { alignSelf: 'center', marginTop: 20 })}>
           Liste des Salles
         </Text>
         <ScrollView
@@ -292,18 +219,24 @@ class Lobby extends React.Component {
         >
           <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text
-              style={Object.assign({}, material.headline, {
-                alignSelf: 'flex-end',
-                marginLeft: 20,
-              })}
+              style={Object.assign(
+                {},
+                {
+                  alignSelf: 'flex-end',
+                  marginLeft: 20,
+                }
+              )}
             >
               Salle
             </Text>
             <Text
-              style={Object.assign({}, material.headline, {
-                alignSelf: 'flex-end',
-                marginRight: 20,
-              })}
+              style={Object.assign(
+                {},
+                {
+                  alignSelf: 'flex-end',
+                  marginRight: 20,
+                }
+              )}
             >
               Joueur
             </Text>
@@ -316,21 +249,21 @@ class Lobby extends React.Component {
                   style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}
                 >
                   <Text
-                    onPress={() => {
-                      console.log('Want to join: ', it.name);
-                    }}
                     numberOfLines={1}
                     ellipsizeMode="tail"
-                    style={Object.assign({}, material.title, {
-                      width: 150,
-                      alignSelf: 'flex-end',
-                      marginLeft: 20,
-                    })}
+                    style={Object.assign(
+                      {},
+                      {
+                        width: 150,
+                        alignSelf: 'flex-end',
+                        marginLeft: 20,
+                      }
+                    )}
                   >
                     {it.name}
                   </Text>
                   <Button
-                    icon={<Icon name="md-log-in" type="ionicons" size={20} color="white" />}
+                    icon={<Icon name="md-log-in" type="ionicons" size={18} color="white" />}
                     buttonStyle={{
                       backgroundColor: '#2c3e50',
                       alignSelf: 'center',
@@ -346,10 +279,13 @@ class Lobby extends React.Component {
                     }}
                   />
                   <Text
-                    style={Object.assign({}, material.title, {
-                      alignSelf: 'flex-end',
-                      marginRight: 20,
-                    })}
+                    style={Object.assign(
+                      {},
+                      {
+                        alignSelf: 'flex-end',
+                        marginRight: 20,
+                      }
+                    )}
                   >
                     {it.playerList.length}
                     {'/2'}
@@ -363,24 +299,27 @@ class Lobby extends React.Component {
                 style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}
               >
                 <Text
-                  onPress={() => {
-                    console.log('Want to join: ', it.name);
-                  }}
                   numberOfLines={1}
                   ellipsizeMode="tail"
-                  style={Object.assign({}, material.title, {
-                    width: 150,
-                    alignSelf: 'flex-end',
-                    marginLeft: 20,
-                  })}
+                  style={Object.assign(
+                    {},
+                    {
+                      width: 150,
+                      alignSelf: 'flex-end',
+                      marginLeft: 20,
+                    }
+                  )}
                 >
                   {it.name}
                 </Text>
                 <Text
-                  style={Object.assign({}, material.title, {
-                    alignSelf: 'flex-end',
-                    marginRight: 20,
-                  })}
+                  style={Object.assign(
+                    {},
+                    {
+                      alignSelf: 'flex-end',
+                      marginRight: 20,
+                    }
+                  )}
                 >
                   {it.playerList.length}
                   {'/2'}
@@ -413,17 +352,13 @@ class Lobby extends React.Component {
 }
 
 Lobby.propTypes = {
-  token: propTypes.string,
-  // joinRoom: propTypes.func.isRequired,
+  jwt: PropTypes.string.isRequired,
 };
 
-Lobby.defaultProps = {
-  token: '',
-};
+Lobby.defaultProps = {};
 
 const mapStateToProps = state => {
   if (state.user) {
-    // console.log(state.user);
     return {
       isConnect: true,
       token: state.user.token,
@@ -434,9 +369,7 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  // joinRoom: roomid => dispatch(joinRoomDispatch(roomid)),
-});
+const mapDispatchToProps = () => ({});
 
 export default connect(
   mapStateToProps,

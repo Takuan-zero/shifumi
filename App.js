@@ -9,6 +9,7 @@ import Home from './screens/Home';
 import Register from './screens/Register';
 import Login from './screens/Login';
 import Lobby from './screens/Lobby';
+import Game from './screens/Game';
 
 const MainStack = styled(Stack)``;
 
@@ -28,6 +29,7 @@ export default class App extends Component {
             <Scene key="Register" component={Register} title="Register" />
             <Scene key="Login" component={Login} title="Login" />
             <Scene key="Lobby" component={Lobby} title="Lobby" />
+            <Scene key="Game" component={Game} title="Game" />
           </MainStack>
         </Router>
       </Provider>

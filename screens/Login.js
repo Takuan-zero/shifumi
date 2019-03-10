@@ -112,9 +112,8 @@ class Login extends Component {
       })
       .then(responseJson => {
         loginDispatch(this.state);
-        // Actions.pop();
-        // Actions.push('Lobby');
-        Actions.Lobby({ token: this.state.jwt });
+        Actions.pop();
+        Actions.replace('Lobby', this.state);
         Alert.alert(`Welcome`, JSON.stringify(responseJson));
       })
       .catch(error => {
