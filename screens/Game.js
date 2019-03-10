@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     bottom: '0%',
     position: 'absolute',
+    alignSelf: 'center',
   },
   button: {
     backgroundColor: '#7a42f4',
