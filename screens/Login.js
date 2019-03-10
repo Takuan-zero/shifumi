@@ -28,7 +28,7 @@ const TopContainer = styled.View`
 
 const TopContainerTitle = styled.Text`
   color: #fcf011;
-  font-size: 100;
+  font-size: 60;
 `;
 
 const MiddleContainer = styled.View`
