@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { TextInput, TouchableHighlight, Image, ImageBackground, Alert } from 'react-native';
+import { TextInput, TouchableHighlight, Image, ImageBackground, Alert, View } from 'react-native';
+import { ImagePicker, Camera, Permissions } from 'expo';
 import PropTypes from 'prop-types';
 import styled from 'styled-components/native';
 import { Actions } from 'react-native-router-flux';
@@ -30,6 +31,13 @@ const TopContainerTitle = styled.Text`
 `;
 
 const PictureContainer = styled.View`
+  margin-bottom: 10;
+`;
+
+const CameraContainer = styled.View`
+  width: 100;
+  height: 100;
+  border-radius: 50;
   margin-bottom: 10;
 `;
 
@@ -106,7 +114,34 @@ const TextButtonLogout = styled.Text`
   color: #ffffff;
 `;
 
+const ButtonPicture = styled(TouchableHighlight)`
+  height: 45;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20;
+  width: 250;
+  border-radius: 30;
+  background-color: #00b5ec;
+`;
+
+const TextButtonPicture = styled.Text`
+  color: #ffffff;
+`;
+
 class HomeLogged extends Component {
+  state = {
+    hasCameraPermission: null,
+    type: Camera.Constants.Type.front,
+    image: null,
+    hiddenCamera: true,
+  };
+
+  async componentDidMount() {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    this.setState({ hasCameraPermission: status === 'granted' });
+  }
+
   onClickListener = param => {
     const { jwt, username } = this.props;
 
@@ -141,8 +176,29 @@ class HomeLogged extends Component {
     }
   };
 
+  pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+
+    if (!result.cancelled) {
+      this.setState({ image: result.uri });
+    }
+  };
+
+  snap = async () => {
+    if (this.camera) {
+      const photo = await this.camera.takePictureAsync();
+      this.setState({ image: photo.uri });
+      this.setState({ hiddenCamera: true });
+    }
+  };
+
   render() {
     const { username } = this.props;
+    const { image, hasCameraPermission, type, hiddenCamera } = this.state;
+
     return (
       <Wrapper>
         <Background source={BackImage}>
@@ -151,8 +207,38 @@ class HomeLogged extends Component {
           </TopContainer>
           <MiddleContainer>
             <PictureContainer>
-              <Picture source={DefaultUser} />
+              <Picture source={image === null ? DefaultUser : { uri: image }} />
             </PictureContainer>
+            <ButtonPicture onPress={this.pickImage}>
+              <TextButtonPicture>Galery</TextButtonPicture>
+            </ButtonPicture>
+            <ButtonPicture
+              onPress={() => {
+                if (hiddenCamera === true) this.setState({ hiddenCamera: false });
+                else {
+                  this.snap();
+                }
+              }}
+            >
+              <TextButtonPicture>Camera</TextButtonPicture>
+            </ButtonPicture>
+            {hasCameraPermission === null ||
+            hasCameraPermission === null ||
+            hiddenCamera === true ? (
+              <View />
+            ) : (
+              <CameraContainer hide={hiddenCamera}>
+                <View style={{ flex: 1 }}>
+                  <Camera
+                    ref={ref => {
+                      this.camera = ref;
+                    }}
+                    style={{ flex: 1 }}
+                    type={type}
+                  />
+                </View>
+              </CameraContainer>
+            )}
             <InputContainer>
               <InputIcon
                 source={{
