@@ -143,7 +143,7 @@ class HomeLogged extends Component {
   }
 
   onClickListener = param => {
-    const { jwt, username } = this.props;
+    const { jwt, username, email, id } = this.props;
 
     if (param === 'logout') {
       fetch('http://46.101.250.58:3000/auth/logout', {
@@ -172,7 +172,7 @@ class HomeLogged extends Component {
     }
 
     if (param === 'lobby') {
-      Actions.push('Lobby', { username, jwt });
+      Actions.push('Lobby', { username, jwt, email, id });
     }
   };
 
@@ -270,6 +270,8 @@ class HomeLogged extends Component {
 HomeLogged.propTypes = {
   username: PropTypes.string.isRequired,
   jwt: PropTypes.string.isRequired,
+  email: PropTypes.string.isRequired,
+  id: PropTypes.number.isRequired,
 };
 
 export default connect()(HomeLogged);
