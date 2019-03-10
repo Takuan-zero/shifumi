@@ -95,6 +95,7 @@ class Lobby extends React.Component {
 
   addRoom = () => {
     const { socket, nameRoom } = this.state;
+    const { id } = this.props;
     this.setState({
       nameRoomError: false,
     });
@@ -109,7 +110,7 @@ class Lobby extends React.Component {
             this.setState({
               displayDialog: false,
             });
-            Actions.push('Game', { socket });
+            Actions.push('Game', { socket, user: { id } });
           }
         }
       );
@@ -152,16 +153,17 @@ class Lobby extends React.Component {
     }
   };
 
-  handleJoinRoom = id => {
+  handleJoinRoom = roomId => {
     const { socket } = this.state;
+    const { id } = this.props;
     socket.emit(
       'joinRoom',
       {
-        id,
+        roomId,
       },
       result => {
         if (result.success) {
-          Actions.push('Game', { socket });
+          Actions.push('Game', { socket, user: { id } });
         }
       }
     );
@@ -353,6 +355,7 @@ class Lobby extends React.Component {
 
 Lobby.propTypes = {
   jwt: PropTypes.string.isRequired,
+  id: PropTypes.number.isRequired,
 };
 
 Lobby.defaultProps = {};

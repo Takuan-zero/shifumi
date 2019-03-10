@@ -11,7 +11,6 @@ import Login from './screens/Login';
 import HomeLogged from './screens/HomeLogged';
 import Lobby from './screens/Lobby';
 import Game from './screens/Game';
-import HomeLogged from './screens/HomeLogged';
 
 const MainStack = styled(Stack)``;
 
